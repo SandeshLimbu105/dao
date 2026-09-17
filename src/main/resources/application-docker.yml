@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:mysql://mysql:3306/gov_interop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+system:
+  a:
+    base-url: http://system-a-ward:8081
+    api-key: ${SYSTEM_A_API_KEY}
+    timeout-ms: 5000
+
+logging:
+  level:
+    org.texas.systembdao: INFO
+    org.springframework.security: WARN

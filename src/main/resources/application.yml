@@ -1,0 +1,52 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: system-b-dao
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:gov_interop}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  jackson:
+    default-property-inclusion: non_null
+
+jwt:
+  secret: ${JWT_SECRET:change-me-in-production-minimum-32-characters-long}
+  expiration-ms: 3600000
+
+# System A (Ward) base URL + service credentials for inter-service calls
+system:
+  a:
+    base-url: ${SYSTEM_A_BASE_URL:http://localhost:8081}
+    api-key: ${SYSTEM_A_API_KEY:system-b-secret-key-change-in-production}
+    timeout-ms: 5000
+
+logging:
+  level:
+    org.texas.systembdao: INFO
+    org.springframework.security: INFO
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
