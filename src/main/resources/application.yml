@@ -1,12 +1,12 @@
 server:
-  port: 8082
+  port: ${PORT:8082}
 
 spring:
   application:
     name: system-b-dao
 
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:gov_interop}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslMode=REQUIRED&serverTimezone=UTC
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -24,13 +24,13 @@ spring:
     default-property-inclusion: non_null
 
 jwt:
-  secret: ${JWT_SECRET:change-me-in-production-minimum-32-characters-long}
+  secret: ${JWT_SECRET}
   expiration-ms: 3600000
 
 system:
   a:
-    base-url: ${SYSTEM_A_BASE_URL:http://localhost:8081}
-    api-key: ${SYSTEM_A_API_KEY:system-b-secret-key-change-in-production}
+    base-url: ${SYSTEM_A_BASE_URL}
+    api-key: ${SYSTEM_A_API_KEY}
     timeout-ms: 5000
 
 logging:
