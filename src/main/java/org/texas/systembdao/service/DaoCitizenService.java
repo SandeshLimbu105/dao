@@ -4,12 +4,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.texas.systembdao.dto.DaoCitizenResponse;
 import org.texas.systembdao.dto.ManualDobRequest;
+import org.texas.systembdao.dto.RegisterDaoCitizenRequest;
 import org.texas.systembdao.entity.DaoCitizenPartial;
 import org.texas.systembdao.entity.enums.AuditResult;
+import org.texas.systembdao.exception.DuplicateResourceException;
 import org.texas.systembdao.exception.ResourceNotFoundException;
 import org.texas.systembdao.repository.DaoCitizenRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -37,6 +40,48 @@ public class DaoCitizenService {
         return daoCitizenRepository.findByNid(nid)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Citizen not found in DAO records: " + nid));
+    }
+
+    /**
+     * Register a new citizen visit at the DAO.
+     * Creates a partial record (NID, name, address, parents).
+     * DOB is left null — it will be fetched from Ward Office later.
+     */
+    @Transactional
+    public DaoCitizenResponse createCitizen(RegisterDaoCitizenRequest request,
+                                            String officerUsername,
+                                            String ipAddress) {
+
+        if (daoCitizenRepository.existsByNid(request.getNid())) {
+            throw new DuplicateResourceException(
+                    "Citizen already registered at DAO: " + request.getNid());
+        }
+
+        DaoCitizenPartial citizen = DaoCitizenPartial.builder()
+                .nid(request.getNid())
+                .fullName(request.getFullName())
+                .address(request.getAddress())
+                .parentsNames(request.getParentsNames())
+                .dob(null)
+                .dobSource(null)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        DaoCitizenPartial saved = daoCitizenRepository.save(citizen);
+
+        auditService.log(
+                "SYSTEM_B",
+                officerUsername,
+                saved.getNid(),
+                "DAO_CITIZEN_REGISTERED",
+                "N/A",
+                List.of("nid", "fullName", "address", "parentsNames"),
+                0L,
+                AuditResult.SUCCESS,
+                ipAddress
+        );
+
+        return toResponse(saved);
     }
 
     /**
